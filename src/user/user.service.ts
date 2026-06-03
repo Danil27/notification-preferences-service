@@ -25,6 +25,7 @@ export class UserService {
       const userRepository = manager.getRepository(UserEntity);
       const user = userRepository.create({
         externalId: createUserDto.externalId,
+        region: createUserDto.region,
       });
       const savedUser = await userRepository.save(user);
 
@@ -64,6 +65,10 @@ export class UserService {
 
     if (updateUserDto.externalId !== undefined) {
       user.externalId = updateUserDto.externalId;
+    }
+
+    if (updateUserDto.region !== undefined) {
+      user.region = updateUserDto.region;
     }
 
     return this.saveUser(user);

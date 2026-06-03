@@ -5,6 +5,7 @@ import { configurationFactory, typeOrmConfigFactory } from './config';
 import { UserModule } from './user/user.module';
 import { PreferencesModule } from './preferences/preferences.module';
 import { QuietHoursModule } from './quiet-hours/quiet-hours.module';
+import { GlobalPoliciesModule } from './global-policies/global-policies.module';
 
 @Module({
   imports: [
@@ -20,6 +21,7 @@ import { QuietHoursModule } from './quiet-hours/quiet-hours.module';
     UserModule,
     PreferencesModule,
     QuietHoursModule,
+    GlobalPoliciesModule,
   ],
   controllers: [],
   providers: [],

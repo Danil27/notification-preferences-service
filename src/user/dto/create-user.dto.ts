@@ -1,5 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsString, Length } from 'class-validator';
+import { IsEnum, IsString, Length } from 'class-validator';
+import { Region } from '../../common/enums';
 
 export class CreateUserDto {
   @ApiProperty({
@@ -10,4 +11,12 @@ export class CreateUserDto {
   @IsString()
   @Length(1, 100)
   externalId: string;
+
+  @ApiProperty({
+    description: 'Регион пользователя',
+    enum: Region,
+    example: Region.EU,
+  })
+  @IsEnum(Region)
+  region: Region;
 }
