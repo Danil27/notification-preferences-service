@@ -4,6 +4,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { configurationFactory, typeOrmConfigFactory } from './config';
 import { UserModule } from './user/user.module';
 import { PreferencesModule } from './preferences/preferences.module';
+import { QuietHoursModule } from './quiet-hours/quiet-hours.module';
 
 @Module({
   imports: [
@@ -18,6 +19,7 @@ import { PreferencesModule } from './preferences/preferences.module';
     }),
     UserModule,
     PreferencesModule,
+    QuietHoursModule,
   ],
   controllers: [],
   providers: [],
