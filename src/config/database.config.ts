@@ -3,6 +3,7 @@ import { TypeOrmModuleOptions } from '@nestjs/typeorm';
 import { DataSourceOptions } from 'typeorm';
 
 const DEFAULT_DATABASE_PORT = 5432;
+const DEFAULT_DATABASE_SCHEMA = 'public';
 
 export interface DatabaseConfig {
   host: string;
@@ -10,6 +11,7 @@ export interface DatabaseConfig {
   username: string;
   password: string;
   database: string;
+  schema: string;
   logging: boolean;
 }
 
@@ -55,6 +57,7 @@ function getDatabaseConfig(): DatabaseConfig {
     username: readRequiredEnv('DATABASE_USER'),
     password: readRequiredEnv('DATABASE_PASSWORD'),
     database: readRequiredEnv('DATABASE_NAME'),
+    schema: process.env.DATABASE_SCHEMA || DEFAULT_DATABASE_SCHEMA,
     logging: parseBoolean(process.env.SQL_LOGGING),
   };
 }
@@ -69,6 +72,7 @@ export function getBaseDataSourceOptions(): DataSourceOptions {
     username: database.username,
     password: database.password,
     database: database.database,
+    schema: database.schema,
     entities: [`${__dirname}/../**/*.entity{.ts,.js}`],
     migrations: [`${__dirname}/../../migrations/*{.ts,.js}`],
     logging: database.logging,
