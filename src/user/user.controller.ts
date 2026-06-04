@@ -10,6 +10,8 @@ import {
   Post,
 } from '@nestjs/common';
 import {
+  ApiBody,
+  ApiConsumes,
   ApiConflictResponse,
   ApiCreatedResponse,
   ApiNoContentResponse,
@@ -35,6 +37,8 @@ export class UserController {
   ) {}
 
   @Post()
+  @ApiConsumes('application/x-www-form-urlencoded', 'application/json')
+  @ApiBody({ type: CreateUserDto })
   @ApiOperation({ summary: 'Create user' })
   @ApiCreatedResponse({ type: UserEntity })
   @ApiConflictResponse({
@@ -60,6 +64,8 @@ export class UserController {
   }
 
   @Patch(':id')
+  @ApiConsumes('application/x-www-form-urlencoded', 'application/json')
+  @ApiBody({ type: UpdateUserDto })
   @ApiOperation({ summary: 'Update user' })
   @ApiOkResponse({ type: UserEntity })
   @ApiNotFoundResponse({ description: 'User was not found' })
@@ -93,6 +99,8 @@ export class UserController {
   }
 
   @Post(':id/preferences')
+  @ApiConsumes('application/x-www-form-urlencoded', 'application/json')
+  @ApiBody({ type: UpdateUserPreferenceDto })
   @ApiOperation({ summary: 'Set user preference' })
   @ApiOkResponse({ type: PreferenceEntity })
   @ApiNotFoundResponse({ description: 'User was not found' })

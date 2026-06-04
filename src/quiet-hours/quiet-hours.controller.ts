@@ -9,6 +9,8 @@ import {
   Put,
 } from '@nestjs/common';
 import {
+  ApiBody,
+  ApiConsumes,
   ApiNoContentResponse,
   ApiNotFoundResponse,
   ApiOkResponse,
@@ -35,6 +37,8 @@ export class QuietHoursController {
   }
 
   @Put()
+  @ApiConsumes('application/x-www-form-urlencoded', 'application/json')
+  @ApiBody({ type: UpsertQuietHoursDto })
   @ApiOperation({ summary: 'Create or update user quiet hours' })
   @ApiOkResponse({ type: QuietHoursEntity })
   @ApiNotFoundResponse({ description: 'User was not found' })

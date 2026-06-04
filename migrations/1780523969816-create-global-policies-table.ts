@@ -3,7 +3,7 @@ import { REGION_ENUM_NAME, Region } from '../src/common/enums';
 import {
   GLOBAL_POLICY_DECISION_ENUM_NAME,
   GlobalPolicyDecision,
-} from '../src/global-policies/enums';
+} from '../src/global-policies/enums/global-policy-decision.enum';
 import {
   NotificationChannel,
   NotificationType,

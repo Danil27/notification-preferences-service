@@ -10,6 +10,8 @@ import {
   Post,
 } from '@nestjs/common';
 import {
+  ApiBody,
+  ApiConsumes,
   ApiConflictResponse,
   ApiCreatedResponse,
   ApiNoContentResponse,
@@ -29,6 +31,8 @@ export class GlobalPoliciesController {
   constructor(private readonly globalPoliciesService: GlobalPoliciesService) {}
 
   @Post()
+  @ApiConsumes('application/x-www-form-urlencoded', 'application/json')
+  @ApiBody({ type: CreateGlobalPolicyDto })
   @ApiOperation({ summary: 'Create global policy' })
   @ApiCreatedResponse({ type: GlobalPolicyEntity })
   @ApiConflictResponse({ description: 'Global policy already exists' })
@@ -54,6 +58,8 @@ export class GlobalPoliciesController {
   }
 
   @Patch(':id')
+  @ApiConsumes('application/x-www-form-urlencoded', 'application/json')
+  @ApiBody({ type: UpdateGlobalPolicyDto })
   @ApiOperation({ summary: 'Update global policy' })
   @ApiOkResponse({ type: GlobalPolicyEntity })
   @ApiNotFoundResponse({ description: 'Global policy was not found' })

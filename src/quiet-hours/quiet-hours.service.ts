@@ -36,6 +36,14 @@ export class QuietHoursService {
     return quietHours;
   }
 
+  async findOptionalByUserId(userId: number): Promise<QuietHoursEntity | null> {
+    return this.quietHoursRepository.findOne({
+      where: {
+        userId,
+      },
+    });
+  }
+
   async upsert(
     userId: number,
     upsertQuietHoursDto: UpsertQuietHoursDto,

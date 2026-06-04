@@ -21,6 +21,7 @@ export class UpdateUserPreferenceDto {
 
   @ApiProperty({
     description: 'Флаг включения уведомления',
+    type: Boolean,
     example: false,
   })
   @IsBoolean()

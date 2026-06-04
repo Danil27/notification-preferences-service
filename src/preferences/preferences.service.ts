@@ -2,18 +2,13 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { EntityManager, Repository } from 'typeorm';
 import { UserEntity } from '../user/entities/user.entity';
-import {
-  DEFAULT_USER_PREFERENCES,
-  DefaultPreference,
-} from './default-preferences';
+import { DEFAULT_USER_PREFERENCES } from './default-preferences';
 import { PreferenceEntity } from './entities/preference.entity';
-import { NotificationChannel, NotificationType } from './enums';
-
-export interface SetPreferenceCommand {
-  notificationType: NotificationType;
-  channel: NotificationChannel;
-  isEnabled: boolean;
-}
+import {
+  DefaultPreference,
+  FindPreferenceQuery,
+  SetPreferenceCommand,
+} from './interfaces';
 
 @Injectable()
 export class PreferencesService {
@@ -46,6 +41,18 @@ export class PreferencesService {
       order: {
         notificationType: 'ASC',
         channel: 'ASC',
+      },
+    });
+  }
+
+  async findOneByUserAndNotification(
+    input: FindPreferenceQuery,
+  ): Promise<PreferenceEntity | null> {
+    return this.preferenceRepository.findOne({
+      where: {
+        userId: input.userId,
+        notificationType: input.notificationType,
+        channel: input.channel,
       },
     });
   }

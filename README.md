@@ -1,5 +1,11 @@
 # Notification Preferences Service
 
+## Что добавить для продакшена
+
+- Аутентификацию и авторизацию для всех управляющих эндпоинтов.
+- E2E-тесты с реальной PostgreSQL-схемой.
+- Версионирование API и более строгий контракт ошибок.
+
 ## Запуск проекта
 
 Требуется Node.js 20+ и Docker.
@@ -28,6 +34,12 @@ docker compose up -d postgres
 npm run start:dev
 ```
 
+5. Запустить тесты:
+
+```bash
+npm run test
+```
+
 По умолчанию сервис запускается на `http://localhost:3000`, PostgreSQL доступен на `localhost:5432`.
 Swagger UI доступен на `http://localhost:3000/api/docs`.
 
@@ -53,11 +65,6 @@ npm run migration:revert
 # unit tests
 npm run test
 
-# e2e tests
-npm run test:e2e
-
-# test coverage
-npm run test:cov
 ```
 
 Тестовое задание: Notification Preferences Service
@@ -207,5 +214,4 @@ Observability и эксплуатация:
 Docker‑окружение приветствуется, но не обязательно.  
 
 Главный фокус — на качестве архитектуры, типов, бизнес‑логики и соответствии описанному поведению.
-
 

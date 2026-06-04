@@ -10,6 +10,10 @@ import { NotificationChannel, NotificationType } from '../preferences/enums';
 import { CreateGlobalPolicyDto } from './dto/create-global-policy.dto';
 import { UpdateGlobalPolicyDto } from './dto/update-global-policy.dto';
 import { GlobalPolicyEntity } from './entities/global-policy.entity';
+import {
+  ActiveGlobalPolicyResult,
+  FindActiveGlobalPolicyQuery,
+} from './interfaces';
 
 @Injectable()
 export class GlobalPoliciesService {
@@ -87,12 +91,14 @@ export class GlobalPoliciesService {
     }
   }
 
-  async findActivePolicy(input: {
-    notificationType: NotificationType;
-    channel: NotificationChannel;
-    region: Region;
-  }): Promise<GlobalPolicyEntity | null> {
+  async findActivePolicy(
+    input: FindActiveGlobalPolicyQuery,
+  ): Promise<ActiveGlobalPolicyResult | null> {
     return this.globalPolicyRepository.findOne({
+      select: {
+        decision: true,
+        reason: true,
+      },
       where: {
         notificationType: input.notificationType,
         channel: input.channel,

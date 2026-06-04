@@ -6,6 +6,7 @@ import { UserModule } from './user/user.module';
 import { PreferencesModule } from './preferences/preferences.module';
 import { QuietHoursModule } from './quiet-hours/quiet-hours.module';
 import { GlobalPoliciesModule } from './global-policies/global-policies.module';
+import { EvaluationModule } from './evaluation/evaluation.module';
 
 @Module({
   imports: [
@@ -22,6 +23,7 @@ import { GlobalPoliciesModule } from './global-policies/global-policies.module';
     PreferencesModule,
     QuietHoursModule,
     GlobalPoliciesModule,
+    EvaluationModule,
   ],
   controllers: [],
   providers: [],

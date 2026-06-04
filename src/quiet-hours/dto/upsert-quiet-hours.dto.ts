@@ -35,6 +35,7 @@ export class UpsertQuietHoursDto {
 
   @ApiProperty({
     description: 'Флаг включения quiet hours',
+    type: Boolean,
     example: true,
     required: false,
   })

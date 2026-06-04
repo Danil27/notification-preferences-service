@@ -17,7 +17,7 @@ import {
 import {
   GLOBAL_POLICY_DECISION_ENUM_NAME,
   GlobalPolicyDecision,
-} from '../enums';
+} from '../enums/global-policy-decision.enum';
 
 @Entity({ name: 'global_policies' })
 @Unique('uq_global_policies_type_channel_region', [

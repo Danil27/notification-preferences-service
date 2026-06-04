@@ -8,7 +8,7 @@ import {
 } from 'class-validator';
 import { Region } from '../../common/enums';
 import { NotificationChannel, NotificationType } from '../../preferences/enums';
-import { GlobalPolicyDecision } from '../enums';
+import { GlobalPolicyDecision } from '../enums/global-policy-decision.enum';
 
 export class CreateGlobalPolicyDto {
   @ApiProperty({
@@ -54,6 +54,7 @@ export class CreateGlobalPolicyDto {
 
   @ApiProperty({
     description: 'Флаг активности политики',
+    type: Boolean,
     example: true,
     required: false,
   })
