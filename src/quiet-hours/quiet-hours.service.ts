@@ -1,6 +1,7 @@
 import {
   BadRequestException,
   Injectable,
+  Logger,
   NotFoundException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -11,6 +12,8 @@ import { QuietHoursEntity } from './entities/quiet-hours.entity';
 
 @Injectable()
 export class QuietHoursService {
+  private readonly logger = new Logger(QuietHoursService.name);
+
   constructor(
     @InjectRepository(QuietHoursEntity)
     private readonly quietHoursRepository: Repository<QuietHoursEntity>,
@@ -65,15 +68,27 @@ export class QuietHoursService {
 
     if (quietHours) {
       this.quietHoursRepository.merge(quietHours, payload);
-      return this.quietHoursRepository.save(quietHours);
+      const savedQuietHours = await this.quietHoursRepository.save(quietHours);
+
+      this.logger.log(
+        `Quiet hours updated: userId=${userId}, startTime=${payload.startTime}, endTime=${payload.endTime}, timezone=${payload.timezone}, isEnabled=${payload.isEnabled}`,
+      );
+
+      return savedQuietHours;
     }
 
-    return this.quietHoursRepository.save(
+    const savedQuietHours = await this.quietHoursRepository.save(
       this.quietHoursRepository.create({
         userId,
         ...payload,
       }),
     );
+
+    this.logger.log(
+      `Quiet hours created: userId=${userId}, startTime=${payload.startTime}, endTime=${payload.endTime}, timezone=${payload.timezone}, isEnabled=${payload.isEnabled}`,
+    );
+
+    return savedQuietHours;
   }
 
   async remove(userId: number): Promise<void> {
@@ -88,6 +103,8 @@ export class QuietHoursService {
         `Quiet hours for user with id ${userId} were not found`,
       );
     }
+
+    this.logger.log(`Quiet hours removed: userId=${userId}`);
   }
 
   private async assertUserExists(userId: number): Promise<void> {
@@ -108,6 +125,8 @@ export class QuietHoursService {
         timeZone: timezone,
       });
     } catch {
+      this.logger.warn(`Invalid timezone received: timezone=${timezone}`);
+
       throw new BadRequestException(`Timezone ${timezone} is not valid`);
     }
   }

@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { GlobalPoliciesService } from '../global-policies/global-policies.service';
 import { GlobalPolicyDecision } from '../global-policies/enums/global-policy-decision.enum';
 import { NotificationChannel, NotificationType } from '../preferences/enums';
@@ -15,6 +15,8 @@ const BLOCKED_BY_QUIET_HOURS_REASON = 'blocked_by_quiet_hours';
 
 @Injectable()
 export class EvaluationService {
+  private readonly logger = new Logger(EvaluationService.name);
+
   constructor(
     private readonly userService: UserService,
     private readonly preferencesService: PreferencesService,
@@ -32,6 +34,8 @@ export class EvaluationService {
     });
 
     if (activePolicy) {
+      this.logDecision(input, activePolicy);
+
       return activePolicy;
     }
 
@@ -43,17 +47,29 @@ export class EvaluationService {
       });
 
     if (preference?.isEnabled === false) {
-      return this.deny(BLOCKED_BY_USER_PREFERENCE_REASON);
+      const result = this.deny(BLOCKED_BY_USER_PREFERENCE_REASON);
+
+      this.logDecision(input, result);
+
+      return result;
     }
 
     if (await this.isBlockedByQuietHours(input)) {
-      return this.deny(BLOCKED_BY_QUIET_HOURS_REASON);
+      const result = this.deny(BLOCKED_BY_QUIET_HOURS_REASON);
+
+      this.logDecision(input, result);
+
+      return result;
     }
 
-    return {
+    const result = {
       decision: GlobalPolicyDecision.ALLOW,
       reason: ALLOWED_REASON,
     };
+
+    this.logDecision(input, result);
+
+    return result;
   }
 
   private async isBlockedByQuietHours(
@@ -123,5 +139,20 @@ export class EvaluationService {
       decision: GlobalPolicyDecision.DENY,
       reason,
     };
+  }
+
+  private logDecision(
+    input: CreateEvaluationDto,
+    result: EvaluationResultDto,
+  ): void {
+    const message = `Evaluation ${result.decision}: userId=${input.userId}, notificationType=${input.notificationType}, channel=${input.channel}, region=${input.region}, reason=${result.reason}`;
+
+    if (result.decision === GlobalPolicyDecision.DENY) {
+      this.logger.warn(message);
+
+      return;
+    }
+
+    this.logger.log(message);
   }
 }

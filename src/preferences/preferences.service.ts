@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable, Logger, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { EntityManager, Repository } from 'typeorm';
 import { UserEntity } from '../user/entities/user.entity';
@@ -12,6 +12,8 @@ import {
 
 @Injectable()
 export class PreferencesService {
+  private readonly logger = new Logger(PreferencesService.name);
+
   constructor(
     @InjectRepository(PreferenceEntity)
     private readonly preferenceRepository: Repository<PreferenceEntity>,
@@ -28,7 +30,14 @@ export class PreferencesService {
       this.createPreferenceEntity(userId, preference, preferenceRepository),
     );
 
-    return preferenceRepository.save(defaultPreferences);
+    const savedPreferences =
+      await preferenceRepository.save(defaultPreferences);
+
+    this.logger.log(
+      `Default preferences created: userId=${userId}, count=${savedPreferences.length}`,
+    );
+
+    return savedPreferences;
   }
 
   async findByUserId(userId: number): Promise<PreferenceEntity[]> {
@@ -73,14 +82,24 @@ export class PreferencesService {
 
     if (preference) {
       if (preference.isEnabled === command.isEnabled) {
+        this.logger.debug(
+          `Preference unchanged: userId=${userId}, notificationType=${command.notificationType}, channel=${command.channel}, isEnabled=${command.isEnabled}`,
+        );
+
         return preference;
       }
 
       preference.isEnabled = command.isEnabled;
-      return this.preferenceRepository.save(preference);
+      const savedPreference = await this.preferenceRepository.save(preference);
+
+      this.logger.log(
+        `Preference updated: userId=${userId}, notificationType=${command.notificationType}, channel=${command.channel}, isEnabled=${command.isEnabled}`,
+      );
+
+      return savedPreference;
     }
 
-    return this.preferenceRepository.save(
+    const savedPreference = await this.preferenceRepository.save(
       this.preferenceRepository.create({
         userId,
         notificationType: command.notificationType,
@@ -88,6 +107,12 @@ export class PreferencesService {
         isEnabled: command.isEnabled,
       }),
     );
+
+    this.logger.log(
+      `Preference created: userId=${userId}, notificationType=${command.notificationType}, channel=${command.channel}, isEnabled=${command.isEnabled}`,
+    );
+
+    return savedPreference;
   }
 
   private getPreferenceRepository(

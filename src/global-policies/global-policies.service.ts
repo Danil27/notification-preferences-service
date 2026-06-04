@@ -1,6 +1,7 @@
 import {
   ConflictException,
   Injectable,
+  Logger,
   NotFoundException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -17,6 +18,8 @@ import {
 
 @Injectable()
 export class GlobalPoliciesService {
+  private readonly logger = new Logger(GlobalPoliciesService.name);
+
   constructor(
     @InjectRepository(GlobalPolicyEntity)
     private readonly globalPolicyRepository: Repository<GlobalPolicyEntity>,
@@ -31,12 +34,18 @@ export class GlobalPoliciesService {
       createGlobalPolicyDto.region,
     );
 
-    return this.globalPolicyRepository.save(
+    const savedPolicy = await this.globalPolicyRepository.save(
       this.globalPolicyRepository.create({
         ...createGlobalPolicyDto,
         isActive: createGlobalPolicyDto.isActive ?? true,
       }),
     );
+
+    this.logger.log(
+      `Global policy created: id=${savedPolicy.id}, notificationType=${savedPolicy.notificationType}, channel=${savedPolicy.channel}, region=${savedPolicy.region}, decision=${savedPolicy.decision}, isActive=${savedPolicy.isActive}`,
+    );
+
+    return savedPolicy;
   }
 
   async findAll(): Promise<GlobalPolicyEntity[]> {
@@ -80,7 +89,13 @@ export class GlobalPoliciesService {
 
     this.globalPolicyRepository.merge(policy, updateGlobalPolicyDto);
 
-    return this.globalPolicyRepository.save(policy);
+    const savedPolicy = await this.globalPolicyRepository.save(policy);
+
+    this.logger.log(
+      `Global policy updated: id=${savedPolicy.id}, notificationType=${savedPolicy.notificationType}, channel=${savedPolicy.channel}, region=${savedPolicy.region}, decision=${savedPolicy.decision}, isActive=${savedPolicy.isActive}`,
+    );
+
+    return savedPolicy;
   }
 
   async remove(id: number): Promise<void> {
@@ -89,12 +104,14 @@ export class GlobalPoliciesService {
     if (!result.affected) {
       throw new NotFoundException(`Global policy with id ${id} was not found`);
     }
+
+    this.logger.log(`Global policy removed: id=${id}`);
   }
 
   async findActivePolicy(
     input: FindActiveGlobalPolicyQuery,
   ): Promise<ActiveGlobalPolicyResult | null> {
-    return this.globalPolicyRepository.findOne({
+    const activePolicy = await this.globalPolicyRepository.findOne({
       select: {
         decision: true,
         reason: true,
@@ -106,6 +123,14 @@ export class GlobalPoliciesService {
         isActive: true,
       },
     });
+
+    if (activePolicy) {
+      this.logger.debug(
+        `Active global policy found: notificationType=${input.notificationType}, channel=${input.channel}, region=${input.region}, decision=${activePolicy.decision}, reason=${activePolicy.reason}`,
+      );
+    }
+
+    return activePolicy;
   }
 
   private async assertPolicyKeyIsAvailable(
@@ -123,6 +148,10 @@ export class GlobalPoliciesService {
     });
 
     if (existingPolicy && existingPolicy.id !== ignoredPolicyId) {
+      this.logger.warn(
+        `Global policy conflict: notificationType=${notificationType}, channel=${channel}, region=${region}, existingPolicyId=${existingPolicy.id}`,
+      );
+
       throw new ConflictException(
         'Global policy for this notificationType, channel and region already exists',
       );

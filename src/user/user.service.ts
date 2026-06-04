@@ -1,6 +1,7 @@
 import {
   ConflictException,
   Injectable,
+  Logger,
   NotFoundException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -12,6 +13,8 @@ import { UserEntity } from './entities/user.entity';
 
 @Injectable()
 export class UserService {
+  private readonly logger = new Logger(UserService.name);
+
   constructor(
     @InjectRepository(UserEntity)
     private readonly userRepository: Repository<UserEntity>,
@@ -32,6 +35,10 @@ export class UserService {
       await this.preferencesService.createDefaultPreferences(
         savedUser.id,
         manager,
+      );
+
+      this.logger.log(
+        `User created: id=${savedUser.id}, externalId=${savedUser.externalId}, region=${savedUser.region}`,
       );
 
       return savedUser;
@@ -71,7 +78,13 @@ export class UserService {
       user.region = updateUserDto.region;
     }
 
-    return this.saveUser(user);
+    const savedUser = await this.saveUser(user);
+
+    this.logger.log(
+      `User updated: id=${savedUser.id}, externalId=${savedUser.externalId}, region=${savedUser.region}`,
+    );
+
+    return savedUser;
   }
 
   async remove(id: number): Promise<void> {
@@ -80,6 +93,8 @@ export class UserService {
     if (!result.affected) {
       throw new NotFoundException(`User with id ${id} was not found`);
     }
+
+    this.logger.log(`User removed: id=${id}`);
   }
 
   private async saveUser(user: UserEntity): Promise<UserEntity> {
@@ -99,6 +114,10 @@ export class UserService {
     });
 
     if (existingUser && existingUser.id !== ignoredUserId) {
+      this.logger.warn(
+        `User externalId conflict: externalId=${externalId}, existingUserId=${existingUser.id}`,
+      );
+
       throw new ConflictException('User with this externalId already exists');
     }
   }
